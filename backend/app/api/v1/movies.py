@@ -61,45 +61,42 @@ async def list_movies(
         df = df.sort_values(by="vote_average", ascending=False)
 
     total = len(df)
-    slice_df = df.iloc[pagination.offset : pagination.offset + pagination.page_size]
+    start = (pagination.page - 1) * pagination.page_size
+    end = start + pagination.page_size
+    page_df = df.iloc[start:end]
 
-    items: list[MovieOut] = []
-    for _, row in slice_df.iterrows():
-        items.append(MovieOut.model_validate(row.to_dict()))
-
-    has_next = (pagination.offset + pagination.page_size) < total
+    items = [MovieOut.model_validate(row.to_dict()) for _, row in page_df.iterrows()]
     return PaginatedMoviesOut(
         items=items,
+        total=total,
         page=pagination.page,
         page_size=pagination.page_size,
-        total=total,
-        has_next=has_next,
+        has_next=end < total,
     )
 
 
 @router.get("/popular", response_model=list[MovieOut])
-async def get_popular_movies(k: int = Query(20, ge=1, le=100)):
+async def get_popular_movies(k: int = Query(20, ge=1, le=50)):
     pop = PopularityRecommender()
-    scored = pop.recommend(k=k)
-    mid_map = {r.movie_id: r.score for r in scored}
+    recs = pop.recommend(k=k)
+    mid_order = [r.movie_id for r in recs]
 
     df = get_movies_df()
-    df = df[df["id"].isin(mid_map.keys())].copy()
-    df["weighted_rating"] = df["id"].map(mid_map)
-    df = df.sort_values(by="weighted_rating", ascending=False)
+    matched_df = df[df["id"].isin(mid_order)].copy()
+    matched_df["sort_idx"] = matched_df["id"].apply(lambda m: mid_order.index(m) if m in mid_order else 999)
+    matched_df = matched_df.sort_values(by="sort_idx")
 
-    return [MovieOut.model_validate(row.to_dict()) for _, row in df.iterrows()]
+    return [MovieOut.model_validate(row.to_dict()) for _, row in matched_df.iterrows()]
 
 
 @router.get("/search", response_model=list[MovieOut])
 async def search_movies(
     q: str = Query(..., min_length=1),
-    limit: int = Query(20, ge=1, le=50),
+    limit: int = Query(20, ge=1, le=100),
 ):
     df = get_movies_df()
     q_lower = q.lower()
 
-    # Exact title / overview substring match
     title_matches = df[df["title"].str.lower().str.contains(q_lower, na=False)]
     overview_matches = df[df["overview"].str.lower().str.contains(q_lower, na=False)]
 
@@ -107,6 +104,16 @@ async def search_movies(
     combined = combined.sort_values(by="popularity", ascending=False).head(limit)
 
     return [MovieOut.model_validate(row.to_dict()) for _, row in combined.iterrows()]
+
+
+@router.get("/meta/genres", response_model=list[str])
+async def list_genres():
+    df = get_movies_df()
+    all_genres: set[str] = set()
+    for g_list in df["genre_names"]:
+        if isinstance(g_list, (list, tuple)):
+            all_genres.update(g_list)
+    return sorted(all_genres)
 
 
 @router.get("/{movie_id}", response_model=MovieDetailOut)
@@ -136,13 +143,3 @@ async def get_similar_movies(movie_id: int, k: int = Query(12, ge=1, le=50)):
     matched_df = matched_df.sort_values(by="sort_idx")
 
     return [MovieOut.model_validate(row.to_dict()) for _, row in matched_df.iterrows()]
-
-
-@router.get("/meta/genres", response_model=list[str])
-async def list_genres():
-    df = get_movies_df()
-    all_genres: set[str] = set()
-    for g_list in df["genre_names"]:
-        if isinstance(g_list, (list, tuple)):
-            all_genres.update(g_list)
-    return sorted(all_genres)
