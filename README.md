@@ -18,6 +18,26 @@ CineSense implements a two-stage hybrid recommendation engine and a RAG-grounded
 - **LLM / GenAI:** Anthropic SDK (`claude-opus-5`), Pydantic structured outputs, prompt caching
 - **Frontend:** React 19, Vite, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query
 
+## Quick Start
+
+### One-Click Launch (Windows)
+Double-click `start.bat` or run in terminal:
+```cmd
+.\start.bat
+```
+This automatically launches both the FastAPI backend (`http://localhost:8000`) and the React Vite frontend (`http://localhost:5173`) in separate windows.
+
+### Manual Launch
+1. **Backend:**
+   ```powershell
+   C:\Users\shara\.local\bin\uv.exe run --project backend fastapi dev backend/app/main.py --port 8000
+   ```
+2. **Frontend:**
+   ```powershell
+   cd frontend
+   npm run dev
+   ```
+
 ## TMDB Attribution
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 
