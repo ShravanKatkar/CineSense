@@ -2,10 +2,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from app.recsys.base import MovieFilters, ScoredMovie
 from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
+
+from app.recsys.base import MovieFilters, ScoredMovie
 
 PROCESSED_DIR = Path("data/processed")
 

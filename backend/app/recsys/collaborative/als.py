@@ -4,9 +4,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import structlog
-from app.recsys.base import MovieFilters, ScoredMovie
 from implicit.als import AlternatingLeastSquares
 from scipy.sparse import csr_matrix
+
+from app.recsys.base import MovieFilters, ScoredMovie
 
 log = structlog.get_logger()
 PROCESSED_DIR = Path("data/processed")

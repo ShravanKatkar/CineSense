@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+
 from app.recsys.base import MovieFilters, ScoredMovie
 
 PROCESSED_DIR = Path("data/processed")

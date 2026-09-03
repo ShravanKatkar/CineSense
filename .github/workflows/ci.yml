@@ -1,0 +1,51 @@
+name: CineSense CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          uv sync --project backend
+
+      - name: Run Ruff Linter
+        run: |
+          uv run --project backend ruff check backend/app
+
+      - name: Run MyPy Type Checker
+        run: |
+          uv run --project backend mypy backend/app
+
+      - name: Run PyTest Suite
+        run: |
+          uv run --project backend pytest
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build

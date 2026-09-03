@@ -2,9 +2,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from app.recsys.base import MovieFilters, ScoredMovie
 from scipy.sparse import csr_matrix, load_npz, save_npz
 from sklearn.preprocessing import normalize
+
+from app.recsys.base import MovieFilters, ScoredMovie
 
 PROCESSED_DIR = Path("data/processed")
 ML_DIR = Path("data/raw/ml-latest-small")

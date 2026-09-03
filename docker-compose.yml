@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: cinesense-db
+    environment:
+      POSTGRES_DB: cinesense
+      POSTGRES_USER: cinesense
+      POSTGRES_PASSWORD: cinesense_secret_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cinesense -d cinesense"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cinesense-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://cinesense:cinesense_secret_pass@db:5432/cinesense
+      JWT_SECRET_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      ENVIRONMENT: production
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

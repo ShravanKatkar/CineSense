@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+
 from app.recsys.base import MovieFilters, ScoredMovie
 from app.recsys.baseline.popularity import PopularityRecommender
 from app.recsys.collaborative.als import ALSRecommender

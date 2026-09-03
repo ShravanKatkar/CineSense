@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = Field(default=["http://localhost:5173"])
     daily_llm_budget_usd: float = Field(default=1.00)
     environment: Literal["development", "production", "test"] = Field(default="development")
+    app_version: str = Field(default="1.0.0")
     log_level: str = Field(default="INFO")
 
     @field_validator("jwt_secret_key")

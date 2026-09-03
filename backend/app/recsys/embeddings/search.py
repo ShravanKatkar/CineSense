@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+
 from app.recsys.base import MovieFilters, ScoredMovie
 
 PROCESSED_DIR = Path("data/processed")
