@@ -16,7 +16,7 @@ if not exist "%UV_PATH%" (
 )
 
 echo [1/2] Launching FastAPI Backend Server on http://localhost:8000...
-start "CineSense FastAPI Backend (Port 8000)" cmd /k "%UV_PATH% run --project backend fastapi dev backend/app/main.py --port 8000"
+start "CineSense FastAPI Backend (Port 8000)" cmd /k "cd backend && %UV_PATH% run python -m uvicorn app.main:app --port 8000 --reload"
 
 echo [2/2] Launching Vite React Frontend Server on http://localhost:5173...
 start "CineSense React Frontend (Port 5173)" cmd /k "cd frontend && npm run dev"

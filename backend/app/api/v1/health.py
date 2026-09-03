@@ -4,10 +4,9 @@ import pandas as pd
 from fastapi import APIRouter
 
 from app.core.config import get_settings
+from app.core.paths import MOVIES_PARQUET
 
 router = APIRouter(tags=["Health & System Meta"])
-PROCESSED_DIR = Path("data/processed")
-MOVIES_PARQUET = PROCESSED_DIR / "movies.parquet"
 settings = get_settings()
 
 

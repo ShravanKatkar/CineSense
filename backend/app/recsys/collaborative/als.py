@@ -7,15 +7,11 @@ import structlog
 from implicit.als import AlternatingLeastSquares
 from scipy.sparse import csr_matrix
 
+from app.core.paths import ALS_MAP_JSON, ITEM_FACTORS_NPY, MOVIES_PARQUET, PROCESSED_DIR, RAW_DIR, USER_FACTORS_NPY
 from app.recsys.base import MovieFilters, ScoredMovie
 
 log = structlog.get_logger()
-PROCESSED_DIR = Path("data/processed")
-ML_DIR = Path("data/raw/ml-latest-small")
-
-USER_FACTORS_NPY = PROCESSED_DIR / "als_user_factors.npy"
-ITEM_FACTORS_NPY = PROCESSED_DIR / "als_item_factors.npy"
-ALS_MAP_JSON = PROCESSED_DIR / "als_maps.json"
+ML_DIR = RAW_DIR / "ml-latest-small"
 
 
 def train_als_model(

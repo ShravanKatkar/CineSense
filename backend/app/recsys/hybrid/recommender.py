@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from app.core.paths import MOVIES_PARQUET
 from app.recsys.base import MovieFilters, ScoredMovie
 from app.recsys.baseline.popularity import PopularityRecommender
 from app.recsys.collaborative.als import ALSRecommender
@@ -10,8 +11,6 @@ from app.recsys.content.tfidf import TfidfRecommender
 from app.recsys.embeddings.search import EmbeddingRecommender
 from app.recsys.hybrid.diversity import maximal_marginal_relevance
 from app.recsys.hybrid.fusion import reciprocal_rank_fusion
-
-PROCESSED_DIR = Path("data/processed")
 
 
 def generate_template_reason(sources: dict[str, int], seed_title: str | None = None) -> str:
@@ -29,7 +28,7 @@ def generate_template_reason(sources: dict[str, int], seed_title: str | None = N
 class HybridRecommender:
     name = "hybrid"
 
-    def __init__(self, movies_path: Path = PROCESSED_DIR / "movies.parquet"):
+    def __init__(self, movies_path: Path = MOVIES_PARQUET):
         self.movies_path = movies_path
         self.movies_df = pd.read_parquet(movies_path)
         self.movies_df["movie_id"] = self.movies_df["movielens_id"].dropna().astype(int)

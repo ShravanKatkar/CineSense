@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.deps import get_current_user
 from app.core.exceptions import NotFoundError
+from app.core.paths import MOVIES_PARQUET
 from app.db.session import get_db_session
 from app.models.users import Favorite, Rating, User
 from app.recsys.hybrid.profile import UserTasteProfile, compute_user_profile
@@ -14,8 +15,6 @@ from app.schemas.movies import MovieOut
 from app.schemas.ratings import RatingCreate, RatingOut
 
 router = APIRouter(prefix="/users/me", tags=["User Profile & Activity"])
-PROCESSED_DIR = Path("data/processed")
-MOVIES_PARQUET = PROCESSED_DIR / "movies.parquet"
 
 
 def get_movies_dict() -> dict[int, dict]:

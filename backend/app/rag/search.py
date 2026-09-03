@@ -1,10 +1,10 @@
 import time
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import structlog
 
+from app.core.paths import MOVIES_PARQUET
 from app.rag.explainer import generate_grounded_explanations
 from app.rag.intent import parse_user_intent
 from app.recsys.base import MovieFilters
@@ -13,8 +13,6 @@ from app.recsys.hybrid.recommender import HybridRecommender
 from app.schemas.ai import AISearchItemOut, AISearchMeta, AISearchResponse
 
 log = structlog.get_logger()
-PROCESSED_DIR = Path("data/processed")
-MOVIES_PARQUET = PROCESSED_DIR / "movies.parquet"
 
 
 def get_movies_df() -> pd.DataFrame:

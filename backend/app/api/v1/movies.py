@@ -5,14 +5,13 @@ from fastapi import APIRouter, Depends, Query
 
 from app.api.v1.deps import PaginationParams, get_optional_user
 from app.core.exceptions import NotFoundError
+from app.core.paths import MOVIES_PARQUET
 from app.models.users import User
 from app.recsys.baseline.popularity import PopularityRecommender
 from app.recsys.hybrid.recommender import HybridRecommender
 from app.schemas.movies import MovieDetailOut, MovieOut, PaginatedMoviesOut
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
-PROCESSED_DIR = Path("data/processed")
-MOVIES_PARQUET = PROCESSED_DIR / "movies.parquet"
 
 
 def get_movies_df() -> pd.DataFrame:

@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from pathlib import Path
 
 import pandas as pd
 from fastapi import APIRouter, Depends, Query
@@ -7,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.deps import get_optional_user
+from app.core.paths import MOVIES_PARQUET
 from app.db.session import get_db_session
 from app.models.users import Rating, User
 from app.recsys.baseline.popularity import PopularityRecommender
@@ -19,8 +19,6 @@ from app.schemas.recommendations import (
 )
 
 router = APIRouter(prefix="/recommendations", tags=["Recommendations"])
-PROCESSED_DIR = Path("data/processed")
-MOVIES_PARQUET = PROCESSED_DIR / "movies.parquet"
 
 
 def get_movies_dict() -> dict[int, dict]:
@@ -130,7 +128,7 @@ async def get_for_you_feed(
 
 
 @router.get("/cold-start", response_model=list[ScoredMovieItemOut])
-async def get_cold_start_onboarding(k: int = Query(20, ge=10, le=40)):
+async def get_cold_start_onboarding(k: int = Query(20, ge=1, le=40)):
     """Returns a diverse set of 20 recognizable movies across different genres for quick user onboarding."""
     pop = PopularityRecommender()
     recs = pop.recommend(k=k * 4)

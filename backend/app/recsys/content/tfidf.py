@@ -6,15 +6,14 @@ from scipy.sparse import csr_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
+from app.core.paths import MOVIES_PARQUET
 from app.recsys.base import MovieFilters, ScoredMovie
-
-PROCESSED_DIR = Path("data/processed")
 
 
 class TfidfRecommender:
     name = "tfidf"
 
-    def __init__(self, movies_path: Path = PROCESSED_DIR / "movies.parquet"):
+    def __init__(self, movies_path: Path = MOVIES_PARQUET):
         if not movies_path.exists():
             raise FileNotFoundError(f"Missing {movies_path}. Run build_documents.py first.")
 

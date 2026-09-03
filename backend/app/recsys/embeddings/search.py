@@ -3,11 +3,8 @@ from pathlib import Path
 
 import numpy as np
 
+from app.core.paths import EMBEDDINGS_MAP, EMBEDDINGS_NPY
 from app.recsys.base import MovieFilters, ScoredMovie
-
-PROCESSED_DIR = Path("data/processed")
-EMBEDDINGS_NPY = PROCESSED_DIR / "movie_embeddings.npy"
-EMBEDDINGS_MAP = PROCESSED_DIR / "movie_embeddings_map.json"
 
 
 class EmbeddingRecommender:

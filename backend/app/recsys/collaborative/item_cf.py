@@ -5,11 +5,10 @@ import pandas as pd
 from scipy.sparse import csr_matrix, load_npz, save_npz
 from sklearn.preprocessing import normalize
 
+from app.core.paths import ITEM_CF_NPZ, MOVIES_PARQUET, RAW_DIR
 from app.recsys.base import MovieFilters, ScoredMovie
 
-PROCESSED_DIR = Path("data/processed")
-ML_DIR = Path("data/raw/ml-latest-small")
-ITEM_CF_NPZ = PROCESSED_DIR / "item_cf_similarity.npz"
+ML_DIR = RAW_DIR / "ml-latest-small"
 
 
 def keep_top_k_per_row(S: csr_matrix, k: int = 50) -> csr_matrix:
@@ -90,7 +89,7 @@ class ItemCFRecommender:
     def __init__(
         self,
         similarity_path: Path = ITEM_CF_NPZ,
-        movies_path: Path = PROCESSED_DIR / "movies.parquet",
+        movies_path: Path = MOVIES_PARQUET,
     ):
         if not movies_path.exists():
             raise FileNotFoundError(f"Missing {movies_path}.")

@@ -2,15 +2,14 @@ from pathlib import Path
 
 import pandas as pd
 
+from app.core.paths import MOVIES_PARQUET
 from app.recsys.base import MovieFilters, ScoredMovie
-
-PROCESSED_DIR = Path("data/processed")
 
 
 class PopularityRecommender:
     name = "popularity"
 
-    def __init__(self, movies_path: Path = PROCESSED_DIR / "movies.parquet", percentile: float = 0.80):
+    def __init__(self, movies_path: Path = MOVIES_PARQUET, percentile: float = 0.80):
         if not movies_path.exists():
             raise FileNotFoundError(f"Missing {movies_path}. Run build_movies_table.py first.")
 
