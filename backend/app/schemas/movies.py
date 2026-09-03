@@ -37,17 +37,17 @@ class MovieOut(BaseModel):
         return self.release_date.year if self.release_date else None
 
     @computed_field
-    def poster_url(self) -> str | None:
-        if not self.poster_path:
-            return None
+    def poster_url(self) -> str:
+        if not self.poster_path or "placeholder" in self.poster_path.lower():
+            return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80"
         if self.poster_path.startswith("http"):
             return self.poster_path
         return f"{TMDB_IMAGE_BASE}/w342{self.poster_path}"
 
     @computed_field
-    def backdrop_url(self) -> str | None:
-        if not self.backdrop_path:
-            return None
+    def backdrop_url(self) -> str:
+        if not self.backdrop_path or "placeholder" in self.backdrop_path.lower():
+            return "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1280&q=80"
         if self.backdrop_path.startswith("http"):
             return self.backdrop_path
         return f"{TMDB_IMAGE_BASE}/w1280{self.backdrop_path}"

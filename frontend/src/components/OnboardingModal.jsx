@@ -88,6 +88,10 @@ export function OnboardingModal({ isOpen, onClose, onComplete }) {
                   <img
                     src={m.poster_url}
                     alt={m.title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80";
+                    }}
                     style={{ width: "100%", height: "180px", objectFit: "cover", borderRadius: "var(--radius-sm)" }}
                   />
                   <h4 style={{ fontSize: "0.85rem", textAlign: "center", fontWeight: "600", color: "#fff" }}>{m.title}</h4>

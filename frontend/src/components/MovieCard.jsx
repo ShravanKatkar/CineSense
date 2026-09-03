@@ -82,6 +82,10 @@ export function MovieCard({ movie, onSelectMovie, onToggleFavorite }) {
           src={posterUrl}
           alt={movie.title}
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80";
+          }}
           style={{
             position: "absolute",
             top: 0,
