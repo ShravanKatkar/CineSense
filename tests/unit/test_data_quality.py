@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 
 DATA_DIR = Path("data/raw/ml-latest-small")
+PROCESSED_DIR = Path("data/processed")
 
 
 def test_movielens_shape():
@@ -24,3 +25,19 @@ def test_movielens_shape():
     rating_movie_ids = set(ratings["movieId"])
     orphan_movies = rating_movie_ids - movie_ids
     assert len(orphan_movies) == 0, f"Found orphan movie ratings: {orphan_movies}"
+
+
+def test_tmdb_coverage():
+    parquet_path = PROCESSED_DIR / "movies.parquet"
+    assert parquet_path.exists(), "movies.parquet must exist"
+
+    movies = pd.read_parquet(parquet_path)
+    assert len(movies) >= 9000, f"Expected >= 9,000 movies in movies.parquet, got {len(movies)}"
+    assert movies["title"].notna().all(), "All movies must have a title"
+    assert movies["overview"].notna().mean() >= 0.95, "Overview coverage must be >= 95%"
+    assert movies["poster_path"].notna().mean() >= 0.95, "Poster path coverage must be >= 95%"
+    assert movies["tmdb_id"].duplicated().sum() == 0, "tmdb_id must be unique across all rows"
+
+    # Runtime check for valid non-null runtimes
+    non_null_runtimes = movies["runtime"].dropna()
+    assert (non_null_runtimes > 0).all(), "All non-null runtimes must be > 0"
