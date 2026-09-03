@@ -26,6 +26,7 @@ dependencies = [
     "anthropic>=0.21.0",
     "voyageai>=0.2.1",
     "pyarrow>=15.0.0",
+    "matplotlib>=3.8.0",
 ]
 
 [build-system]
