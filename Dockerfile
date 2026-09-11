@@ -48,10 +48,11 @@ RUN chmod +x /app/backend/docker-entrypoint.sh
 EXPOSE 8000
 
 # Container health monitoring
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/api/v1/health || exit 1
 
 # Entrypoint automatically checks database readiness, runs migrations, and launches FastAPI
 ENTRYPOINT ["/app/backend/docker-entrypoint.sh"]
-CMD ["uv", "run", "fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
 

@@ -3,31 +3,24 @@ set -e
 
 echo "=== Starting CineSense Production Container ==="
 
-# Wait for PostgreSQL database to be ready if DATABASE_URL is configured
-if [ -n "$DATABASE_URL" ]; then
-    echo "Checking database connection..."
-    # Extract host and port if possible, or wait a few seconds
-    DB_HOST=$(echo "$DATABASE_URL" | sed -E 's/.*@([^:]+).*/\1/' | sed -E 's/\/.*//')
-    DB_PORT=$(echo "$DATABASE_URL" | sed -E 's/.*:([0-9]+)\/.*/\1/')
-    
-    if [ -n "$DB_HOST" ] && command -v pg_isready >/dev/null 2>&1; then
-        echo "Waiting for PostgreSQL at $DB_HOST:${DB_PORT:-5432}..."
-        for i in {1..30}; do
-            if pg_isready -h "$DB_HOST" -p "${DB_PORT:-5432}" >/dev/null 2>&1; then
-                echo "PostgreSQL is ready!"
-                break
-            fi
-            echo "Waiting for PostgreSQL ($i/30)..."
-            sleep 1
-        done
-    fi
+APP_PORT="${PORT:-8000}"
 
-    # Run Alembic migrations
+# Run Alembic migrations if DATABASE_URL is configured
+if [ -n "$DATABASE_URL" ]; then
+    echo "Configuring database connection..."
     if [ -f "alembic.ini" ]; then
         echo "Running database migrations (alembic upgrade head)..."
-        uv run alembic upgrade head || echo "Migration warning: tables may already exist or alembic reported no changes."
+        # Retry up to 5 times with a 2-second sleep to allow Postgres to initialize
+        for i in {1..5}; do
+            if uv run alembic upgrade head; then
+                echo "Database migrations completed successfully."
+                break
+            fi
+            echo "Alembic migration attempt $i/5 failed or database warming up. Retrying in 2s..."
+            sleep 2
+        done
     fi
 fi
 
-echo "Launching CineSense application..."
-exec "$@"
+echo "Launching CineSense application on port $APP_PORT..."
+exec uv run python -m uvicorn app.main:app --host 0.0.0.0 --port "$APP_PORT"

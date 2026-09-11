@@ -18,7 +18,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    database_url: PostgresDsn | str = Field(
+    database_url: str = Field(
         default="postgresql+asyncpg://cinesense:cinesense@localhost:5432/cinesense"
     )
     tmdb_read_token: SecretStr = Field(default=SecretStr(""))
