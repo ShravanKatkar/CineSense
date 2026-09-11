@@ -1,0 +1,47 @@
+# Git and CI
+.git
+.github
+.gitignore
+
+# Python virtual environment and caches
+**/.venv
+**/venv
+**/ENV
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/.coverage
+htmlcov/
+
+# Node.js dependencies and caches
+**/node_modules
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/.pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Raw uncompressed source datasets (not needed in production image)
+data/raw/
+data/ml-latest-small/
+
+# Local logs and temporary artifacts
+*.log
+*.tmp
+temp/
+scratch/
+brain/
+.system_generated/
+.gemini/
+
+# Development launchers and docs
+*.bat
+docs/

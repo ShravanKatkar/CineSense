@@ -1,8 +1,9 @@
 from pathlib import Path
 import pandas as pd
 
-DATA_DIR = Path("data/raw/ml-latest-small")
-PROCESSED_DIR = Path("data/processed")
+ROOT_DIR = Path(__file__).resolve().parents[2]
+DATA_DIR = ROOT_DIR / "data/raw/ml-latest-small"
+PROCESSED_DIR = ROOT_DIR / "data/processed"
 
 
 def test_movielens_shape():

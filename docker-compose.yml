@@ -1,37 +1,73 @@
-version: "3.8"
-
 services:
   db:
     image: pgvector/pgvector:pg16
     container_name: cinesense-db
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: cinesense
-      POSTGRES_USER: cinesense
-      POSTGRES_PASSWORD: cinesense_secret_pass
+      POSTGRES_DB: ${POSTGRES_DB:-cinesense}
+      POSTGRES_USER: ${POSTGRES_USER:-cinesense}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cinesense_secret_pass}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cinesense -d cinesense"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cinesense} -d ${POSTGRES_DB:-cinesense}"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 5s
+    networks:
+      - cinesense-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: cinesense-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    networks:
+      - cinesense-net
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cinesense-backend
+    container_name: cinesense-app
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://cinesense:cinesense_secret_pass@db:5432/cinesense
-      JWT_SECRET_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-cinesense}:${POSTGRES_PASSWORD:-cinesense_secret_pass}@db:5432/${POSTGRES_DB:-cinesense}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
       ENVIRONMENT: production
+      CORS_ORIGINS: '["http://localhost:8000", "http://localhost:5173", "http://127.0.0.1:8000"]'
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cinesense-net
 
 volumes:
   pgdata:
+    driver: local
+  redisdata:
+    driver: local
+
+networks:
+  cinesense-net:
+    driver: bridge
+

@@ -55,6 +55,9 @@ async def fetch_one(client: httpx.AsyncClient, tmdb_id: int, missing_ids: set[in
 async def fetch_all_movies(limit: int | None = None) -> None:
     settings = get_settings()
     token = settings.tmdb_read_token.get_secret_value()
+    # Also read TMDB_API_KEY (v3) as a fallback
+    api_key_v3 = getattr(settings, "tmdb_api_key", None)
+    api_key_v3 = api_key_v3.get_secret_value() if api_key_v3 else ""
 
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     missing_ids: set[int] = set()
@@ -79,20 +82,40 @@ async def fetch_all_movies(limit: int | None = None) -> None:
 
     log.info("tmdb_ingestion_start", total_ids=len(tmdb_ids))
 
-    if not token or token == "your_tmdb_v4_read_access_token_here":
-        log.warning("tmdb_token_missing", message="TMDB_READ_TOKEN is placeholder or not set in .env")
-        print("Warning: TMDB_READ_TOKEN is missing or invalid. Please add your v4 token to .env for real fetching.")
+    # Pick the best available key
+    effective_key = token if (token and token != "your_tmdb_v4_read_access_token_here") else api_key_v3
+
+    if not effective_key:
+        log.warning("tmdb_token_missing", message="No TMDB key found in .env")
+        print("Warning: Set TMDB_API_KEY (v3) or TMDB_READ_TOKEN (v4) in .env.")
         return
 
-    headers = {"Authorization": f"Bearer {token}", "accept": "application/json"}
-    async with httpx.AsyncClient(headers=headers, timeout=30.0) as client:
-        tasks = [fetch_one(client, tid, missing_ids) for tid in tmdb_ids]
-        results = await asyncio.gather(*tasks)
+    # Auto-detect key type: v3 API keys are exactly 32 lowercase hex chars; v4 tokens are much longer
+    is_v3 = len(effective_key) <= 40 and effective_key.replace("-", "").isalnum()
+
+    if is_v3:
+        log.info("tmdb_auth_mode", mode="v3_api_key")
+        # v3: api_key passed as a query param (no Authorization header needed)
+        async with httpx.AsyncClient(
+            headers={"accept": "application/json"},
+            params={"api_key": effective_key, "language": "en-US"},
+            timeout=30.0,
+        ) as client:
+            tasks = [fetch_one(client, tid, missing_ids) for tid in tmdb_ids]
+            results = await asyncio.gather(*tasks)
+    else:
+        log.info("tmdb_auth_mode", mode="v4_bearer")
+        # v4: Authorization Bearer header
+        headers = {"Authorization": f"Bearer {effective_key}", "accept": "application/json"}
+        async with httpx.AsyncClient(headers=headers, timeout=30.0) as client:
+            tasks = [fetch_one(client, tid, missing_ids) for tid in tmdb_ids]
+            results = await asyncio.gather(*tasks)
 
     # Save missing IDs
     MISSING_FILE.write_text(json.dumps(sorted(list(missing_ids)), indent=2), encoding="utf-8")
     fetched_count = sum(1 for r in results if r is not None)
     log.info("tmdb_ingestion_complete", fetched=fetched_count, missing=len(missing_ids))
+
 
 
 if __name__ == "__main__":

@@ -46,10 +46,13 @@ def validate_grounding(text: str, candidates: list[dict]) -> tuple[bool, list[st
     knowledge = extract_candidate_fact_knowledge(candidates)
     violations: list[str] = []
 
-    # Check movie title quotes e.g. "Inception" or 'Toy Story'
-    quoted_titles = re.findall(r"[\"']([^\"']+)[\"']", text)
+    # Check movie title quotes e.g. "Inception" or 'Toy Story' (single line, reasonable length)
+    quoted_titles = re.findall(r"[\"']([^\"'\r\n]{2,60})[\"']", text)
     for q_t in quoted_titles:
         q_clean = q_t.strip().lower()
+        # Ignore grammatical contractions or possessive fragments (e.g. "s ", "t ")
+        if q_clean.startswith("s ") or q_clean in ("s", "t", "re", "ve", "ll", "d"):
+            continue
         if len(q_clean) >= 3 and q_clean not in knowledge["titles"] and q_clean not in knowledge["genres"]:
             violations.append(f"Ungrounded movie title mentioned: '{q_t}'")
 

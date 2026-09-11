@@ -13,30 +13,44 @@ CineSense implements a two-stage hybrid recommendation engine and a RAG-grounded
 - **Language & Runtime:** Python 3.12, managed with `uv`
 - **Backend:** FastAPI, Uvicorn, Pydantic v2, structlog
 - **Database & Vectors:** PostgreSQL 16 + `pgvector` (HNSW index) via SQLAlchemy 2.0 async & Alembic
-- **Machine Learning:** NumPy, pandas, scikit-learn, SciPy sparse, `implicit` (ALS)
-- **Embeddings:** Voyage AI `voyage-4-lite` (512-dim) / `sentence-transformers` for local benchmarks
-- **LLM / GenAI:** Anthropic SDK (`claude-opus-5`), Pydantic structured outputs, prompt caching
-- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query
+- **Caching Tier:** Redis 7 with automatic fallback to in-memory TTL caching (`cachetools`)
+- **Machine Learning:** NumPy, pandas, scikit-learn, SciPy sparse, `implicit` (ALS Matrix Factorization)
+- **Embeddings:** Voyage AI (512-dim) / `sentence-transformers` for offline evaluation benchmarks
+- **LLM / GenAI:** Groq Llama-3.3-70B ReAct Agent, Candidate Whitelist Grounding (0% Hallucination Guarantee)
+- **Frontend:** React 19, Vite, Lucide Icons, Recharts, Custom Matinee Vintage Cinema Design System
+- **Containerization & CI/CD:** Multi-stage Docker, Docker Compose, GitHub Actions, Render & Railway Blueprints
 
 ## Quick Start
 
-### One-Click Launch (Windows)
-Double-click `start.bat` or run in terminal:
+### 1. One-Click Production Launch with Docker
+```bash
+# Windows
+.\docker-start.bat
+
+# Linux / macOS
+./docker-start.sh
+```
+Or directly via Docker Compose:
+```bash
+docker compose up --build -d
+```
+- **Web Platform & REST API:** `http://localhost:8000`
+- **Interactive Swagger Docs:** `http://localhost:8000/docs`
+- **System Health:** `http://localhost:8000/api/v1/health`
+- **Cache & Worker Diagnostics:** `http://localhost:8000/api/v1/system/status`
+
+### 2. Local Development Launch
+Double-click `start.bat` or run:
 ```cmd
 .\start.bat
 ```
-This automatically launches both the FastAPI backend (`http://localhost:8000`) and the React Vite frontend (`http://localhost:5173`) in separate windows.
+This automatically launches both the FastAPI backend (`http://localhost:8000`) and the Vite React frontend (`http://localhost:5173`).
 
-### Manual Launch
-1. **Backend:**
-   ```powershell
-   C:\Users\shara\.local\bin\uv.exe run --project backend fastapi dev backend/app/main.py --port 8000
-   ```
-2. **Frontend:**
-   ```powershell
-   cd frontend
-   npm run dev
-   ```
+## Cloud Deployment
+- **Render:** One-click deployment using [`render.yaml`](render.yaml)
+- **Railway:** One-click deployment using [`railway.json`](railway.json)
+- **Fly.io:** Native deployment using [`fly.toml`](fly.toml)
+See [`docs/deployment-guide.md`](docs/deployment-guide.md) for full cloud hosting walkthroughs.
 
 ## TMDB Attribution
 This product uses the TMDB API but is not endorsed or certified by TMDB.

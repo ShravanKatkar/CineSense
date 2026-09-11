@@ -1,13 +1,16 @@
 .env
 .env.*
 !.env.example
-data/
-*.npz
-*.npy
-*.joblib
+# Ignore raw datasets but keep precomputed processed models for containerization
+data/raw/
+!data/processed/
+
 __pycache__/
 .venv/
 node_modules/
 dist/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+scratch/
 .ipynb_checkpoints/
