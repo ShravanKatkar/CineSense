@@ -235,22 +235,7 @@ Visit `http://localhost:5173` to explore CineSense in hot-reload mode!
 
 ---
 
-## ☁️ 1-Click Cloud Deployment (100% Free)
 
-### Deploying to Render ([render.yaml](render.yaml))
-1. Go to **[dashboard.render.com/blueprints](https://dashboard.render.com/blueprints)**.
-2. Click **New Blueprint Instance** and connect this repository: **`ShravanKatkar/CineSense`**.
-3. Render will read `render.yaml` and configure:
-   - **`cinesense-app`**: Free Web Service with Docker runtime.
-   - **`cinesense-db`**: Free PostgreSQL 16 database.
-4. Input your API keys:
-   - `TMDB_API_KEY`: Your TMDB API read key.
-   - `GROQ_API_KEY`: Your Groq Cloud API key.
-5. Click **Apply**! Your live app will be ready at `https://cinesense-app.onrender.com`.
-
-*(For Railway and Fly.io guides, see [`docs/deployment-guide.md`](docs/deployment-guide.md))*
-
----
 
 ## ⚙️ Environment Variables Reference
 
@@ -294,3 +279,4 @@ uv run pytest ../tests/unit -v
 <p align="center">
   Crafted with ❤️ for film lovers and AI engineers.
 </p>
+## Live Link- https://cinesense-app.onrender.com/
