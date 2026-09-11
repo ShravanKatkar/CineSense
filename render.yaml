@@ -1,13 +1,13 @@
-# Render Infrastructure-as-Code Blueprint for CineSense
-# Deploy with one click on https://render.com
+# Render Infrastructure-as-Code Blueprint for CineSense (100% FREE Tier)
+# Deploy on https://render.com with $0 cost
 
 services:
-  # ── 1. Unified Application Service (React SPA + FastAPI REST) ──
+  # ── 1. Unified Application Service (React 19 SPA + FastAPI REST) ──
   - type: web
     name: cinesense-app
     env: docker
     dockerfilePath: ./Dockerfile
-    plan: standard
+    plan: free
     region: oregon
     healthCheckPath: /api/v1/health
     autoDeploy: true
@@ -18,11 +18,6 @@ services:
         fromDatabase:
           name: cinesense-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: cinesense-redis
-          property: connectionString
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: TMDB_API_KEY
@@ -32,19 +27,11 @@ services:
       - key: CORS_ORIGINS
         value: '["*"]'
 
-  # ── 2. Managed Redis Cache ──
-  - type: redis
-    name: cinesense-redis
-    plan: starter
-    region: oregon
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: [] # internal private access only
-
-# ── 3. PostgreSQL 16 Database with Vector Support ──
+# ── 2. PostgreSQL 16 Database (Free Tier) ──
 databases:
   - name: cinesense-db
     databaseName: cinesense
     user: cinesense
-    plan: standard
+    plan: free
     region: oregon
     postgresMajorVersion: 16
